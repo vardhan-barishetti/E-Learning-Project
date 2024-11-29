@@ -6,8 +6,13 @@ import com.elearn.app.exceptions.ResourceNotFoundException;
 import com.elearn.app.repositories.CourseRepo;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 
+import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -23,34 +28,63 @@ public class CourseServiceImpl implements CourseService{
     }
 
     @Override
-    public CourseDto create(CourseDto courseDto) {
-        Course savedCourse = courseRepo.save(this.dtotoEntity(courseDto));
-        return entityToDto(savedCourse);
+    public CourseDto createCourse(CourseDto courseDto) {
+
+        courseDto.setId((UUID.randomUUID()).toString());
+        courseDto.setCreatedDate(new Date());
+
+        Course course = modelMapper.map(courseDto, Course.class);
+
+        Course savedCourse = courseRepo.save(course);
+
+        return modelMapper.map(savedCourse, CourseDto.class);
     }
 
     @Override
-    public List<CourseDto> getAll() {
-        List<Course> courses = courseRepo.findAll();
-        //all course into course dto[list]
-        List<CourseDto> courseDtoList = courses.stream().map(course -> entityToDto(course)).collect(Collectors.toList());
-        return courseDtoList;
+    public CourseDto updateCourse(String id, CourseDto courseDto) {
+        Course course = courseRepo.findById(id).orElseThrow(()-> new RuntimeException("Course not found"));
+        course.setTitle(courseDto.getTitle());
+        course.setLongDesc(courseDto.getLongDesc());
+        course.setShortDesc(courseDto.getShortDesc());
+        course.setPrice(courseDto.getPrice());
+        course.setDiscount(courseDto.getDiscount());
+
+        Course updatedCourse = courseRepo.save(course);
+
+        CourseDto courseDto1 = modelMapper.map(updatedCourse, CourseDto.class);
+
+        return courseDto1;
     }
 
     @Override
-    public CourseDto update(CourseDto dto, String courseId) {
-        return null;
+    public CourseDto getCourseById(String id) {
+        Course course = courseRepo.findById(id).orElseThrow(()-> new RuntimeException("Course not found"));
+
+        return modelMapper.map(course, CourseDto.class);
     }
 
     @Override
-    public void delete(String courseId) {
+    public Page<CourseDto> getAllCourses(Pageable pageable) {
+        Page<Course> courses = courseRepo.findAll(pageable);
+        List<CourseDto> dtos = courses.getContent().stream().map((course)-> modelMapper.map(course, CourseDto.class)).collect(Collectors.toList());
+
+        return new PageImpl<>(dtos, pageable, courses.getTotalElements());
+    }
+
+    @Override
+    public void deleteCourse(String courseId) {
         Course course = courseRepo.findById(courseId).orElseThrow(()->new ResourceNotFoundException("Course Not found"));
         courseRepo.delete(course);
 
     }
 
     @Override
-    public List<CourseDto> serachByTitle(String titleKeyword) {
-        return null;
+    public List<CourseDto> searchCourses(String keyword) {
+
+        List<Course> courses = courseRepo.findByTitleContainingIgnoreCaseOrShortDescContainingIgnoreCase(keyword, keyword);
+        return courses.stream()
+                .map(course -> modelMapper.map(course, CourseDto.class))
+                .collect(Collectors.toList());
     }
 
 

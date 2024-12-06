@@ -33,4 +33,8 @@ public class CourseDto {
 
         private List<CategoryDto> categoryList = new ArrayList<>();
 
+        public String getBannerUrl(){
+                return "http://localhost:8080/api/v1/courses/"+id+"/banners";
+        }
+
 }

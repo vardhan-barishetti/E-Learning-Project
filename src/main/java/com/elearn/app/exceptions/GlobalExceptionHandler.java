@@ -1,6 +1,7 @@
 package com.elearn.app.exceptions;
 
 import com.elearn.app.dtos.CustomMessage;
+import org.springframework.data.web.config.EnableSpringDataWebSupport;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.util.HashMap;
 import java.util.Map;
+
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {

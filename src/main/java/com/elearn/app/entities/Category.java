@@ -27,6 +27,18 @@ public class Category {
 
     private Date addedDate;
 
-    @ManyToMany(mappedBy = "categoryList")
+    @ManyToMany(mappedBy = "categoryList", cascade = CascadeType.ALL)
     private List<Course> courses = new ArrayList<>();
+
+    public void addCourse(Course course){
+        courses.add(course);
+        course.getCategoryList().add(this);
+
+    }
+
+    public void removeCourse(Course course){
+        courses.remove(course);
+
+        course.getCategoryList().remove(this);
+    }
 }

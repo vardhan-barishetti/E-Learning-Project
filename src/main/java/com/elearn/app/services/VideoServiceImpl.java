@@ -1,20 +1,21 @@
 package com.elearn.app.services;
 
 import com.elearn.app.dtos.CourseDto;
+import com.elearn.app.dtos.CustomPageResponse;
 import com.elearn.app.dtos.VideoDto;
 import com.elearn.app.entities.Course;
 import com.elearn.app.entities.Video;
 import com.elearn.app.repositories.VideoRepo;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.*;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+@Service
 public class VideoServiceImpl implements VideoService{
 
     @Autowired
@@ -53,13 +54,21 @@ public class VideoServiceImpl implements VideoService{
     }
 
     @Override
-    public Page<VideoDto> getAllVideos(Pageable pageable) {
-        Page<Video> videos = videoRepo.findAll(pageable);
-        List<VideoDto> dtos = videos.getContent()
+    public CustomPageResponse<VideoDto> getAllVideos(int pageNumber, int pageSize, String sortBy) {
+        Sort sort = Sort.by(sortBy).ascending();
+        PageRequest pageRequest = PageRequest.of(pageNumber, pageSize, sort);
+
+        Page<Video> videoPage = videoRepo.findAll(pageRequest);
+
+        List<VideoDto> dtos = videoPage.getContent()
                 .stream()
                 .map(video -> modelMapper.map(video, VideoDto.class))
                 .collect(Collectors.toList());
-        return new PageImpl<>(dtos, pageable, videos.getTotalElements());
+
+        CustomPageResponse<VideoDto> response = new CustomPageResponse<>();
+        response.setContent(dtos);
+
+        return response;
     }
 
     @Override

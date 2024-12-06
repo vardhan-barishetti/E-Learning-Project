@@ -1,15 +1,25 @@
 package com.elearn.app.services;
 
+import com.elearn.app.config.AppConstants;
 import com.elearn.app.dtos.CourseDto;
+import com.elearn.app.dtos.CustomPageResponse;
+import com.elearn.app.dtos.ResourceContentType;
+import com.elearn.app.entities.Category;
 import com.elearn.app.entities.Course;
 import com.elearn.app.exceptions.ResourceNotFoundException;
 import com.elearn.app.repositories.CourseRepo;
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -21,6 +31,9 @@ public class CourseServiceImpl implements CourseService{
     private CourseRepo courseRepo;
 
     private ModelMapper modelMapper;
+
+    @Autowired
+    private FileService fileService;
 
     public CourseServiceImpl(CourseRepo courseRepo, ModelMapper modelMapper) {
         this.courseRepo = courseRepo;
@@ -36,6 +49,7 @@ public class CourseServiceImpl implements CourseService{
         Course course = modelMapper.map(courseDto, Course.class);
 
         Course savedCourse = courseRepo.save(course);
+        System.out.println("|||||||||||");
 
         return modelMapper.map(savedCourse, CourseDto.class);
     }
@@ -64,11 +78,19 @@ public class CourseServiceImpl implements CourseService{
     }
 
     @Override
-    public Page<CourseDto> getAllCourses(Pageable pageable) {
-        Page<Course> courses = courseRepo.findAll(pageable);
-        List<CourseDto> dtos = courses.getContent().stream().map((course)-> modelMapper.map(course, CourseDto.class)).collect(Collectors.toList());
+    public CustomPageResponse<CourseDto> getAllCourses(int pageNumber, int pageSize, String sortBy) {
+        Sort sort = Sort.by(sortBy).ascending();
+        PageRequest pageRequest = PageRequest.of(pageNumber, pageSize, sort);
 
-        return new PageImpl<>(dtos, pageable, courses.getTotalElements());
+        Page<Course> coursePage = courseRepo.findAll(pageRequest);
+
+
+        List<CourseDto> dtos = coursePage.getContent().stream().map((course)-> modelMapper.map(course, CourseDto.class)).collect(Collectors.toList());
+
+        CustomPageResponse<CourseDto> response = new CustomPageResponse<>();
+        response.setContent(dtos);
+
+        return response;
     }
 
     @Override
@@ -85,6 +107,33 @@ public class CourseServiceImpl implements CourseService{
         return courses.stream()
                 .map(course -> modelMapper.map(course, CourseDto.class))
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public CourseDto saveBanner(MultipartFile file, String courseId) throws IOException {
+
+        Course course = courseRepo.findById(courseId).orElseThrow(()->new ResourceNotFoundException("Course Not found"));
+
+        String filePath = fileService.save(file, AppConstants.COURSE_BANNER_UPLOAD_DIR, file.getOriginalFilename());
+        course.setBannerName(filePath);
+        course.setBannerContentType(file.getContentType());
+        Course savedCourse = courseRepo.save(course);
+
+        return modelMapper.map(savedCourse, CourseDto.class);
+    }
+
+    @Override
+    public ResourceContentType getCourseBannerById(String courseId) {
+        Course course = courseRepo.findById(courseId).orElseThrow(()->new ResourceNotFoundException("Course Not found"));
+
+        String bannerPath = course.getBannerName();
+        Path path = Paths.get(bannerPath);
+        Resource resource = new FileSystemResource(path);
+        ResourceContentType resourceContentType = new ResourceContentType();
+        resourceContentType.setResource(resource);
+        resourceContentType.setContentType(course.getBannerContentType());
+
+        return resourceContentType;
     }
 
 

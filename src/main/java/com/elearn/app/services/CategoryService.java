@@ -1,6 +1,7 @@
 package com.elearn.app.services;
 
 import com.elearn.app.dtos.CategoryDto;
+import com.elearn.app.dtos.CourseDto;
 import com.elearn.app.dtos.CustomPageResponse;
 
 import java.util.List;
@@ -16,4 +17,8 @@ public interface CategoryService {
     void delete(String categoryId);
 
     CategoryDto update(CategoryDto categoryDto, String categoryId);
+
+    public void addCourseToCategory(String catId, String courseId);
+
+    List<CourseDto> getCourseOfCat(String categoryId);
 }

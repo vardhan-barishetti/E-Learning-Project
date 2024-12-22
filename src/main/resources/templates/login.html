@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Form</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        body {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          height: 100vh;
+          background: linear-gradient(to right, #6a11cb, #2575fc);
+          font-family: 'Roboto', sans-serif;
+          margin: 0;
+        }
+
+        .form-container {
+          background-color: #fff;
+          padding: 40px 30px;
+          border-radius: 8px;
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+          width: 350px;
+          text-align: center;
+        }
+
+        .form-container h2 {
+          margin-bottom: 20px;
+          color: #333;
+        }
+
+        .form-group {
+          position: relative;
+          margin-bottom: 20px;
+        }
+
+        .form-group input {
+          width: 100%;
+          padding: 12px 15px 12px 40px;  /* Left padding for icon space */
+          font-size: 16px;
+          border: 1px solid #ccc;
+          border-radius: 4px;
+          box-sizing: border-box; /* Ensures consistent sizing */
+        }
+
+        .form-group input:focus {
+          outline: none;
+          border-color: #2575fc;
+          box-shadow: 0 0 5px rgba(37, 117, 252, 0.5);
+        }
+
+        .form-group i {
+          position: absolute;
+          top: 50%;
+          left: 10px;
+          transform: translateY(-50%);
+          color: #555;
+          font-size: 18px;
+        }
+
+        .btn {
+          width: 100%;
+          padding: 12px;
+          background-color: #2575fc;
+          border: none;
+          border-radius: 4px;
+          color: #fff;
+          font-size: 18px;
+          font-weight: bold;
+          cursor: pointer;
+          transition: background-color 0.3s ease;
+        }
+
+        .btn:hover {
+          background-color: #0056b3;
+        }
+
+        .form-footer {
+          margin-top: 15px;
+          color: #777;
+          font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+<div class="form-container">
+    <h2>Login</h2>
+    <form th:action="@{'/client-login-process'}" method="POST">
+        <div class="form-group">
+            <i class="fas fa-user"></i>
+            <input type="text" id="username" name="username" placeholder="Enter your username" required>
+        </div>
+        <div class="form-group">
+            <i class="fas fa-lock"></i>
+            <input type="password" id="password" name="userpassword" placeholder="Enter your password" required>
+        </div>
+        <button type="submit" class="btn">Login</button>
+        <div class="form-footer">
+            &copy; 2024 E-learning Application
+        </div>
+    </form>
+</div>
+</body>
+</html>

@@ -36,6 +36,13 @@ public class CourseController {
         this.courseService = courseService;
     }
 
+
+    @Operation(
+            summary = "Create New Course",
+            description = "Pass New Course Information to Create New Course"
+    )
+    @ApiResponse(responseCode = "201", description = "Course Created Successfully")
+    @ApiResponse(responseCode = "501", description = "Internal Server Error, Course Not Created")
     @PostMapping
     public ResponseEntity<CourseDto> createCourse(@RequestBody CourseDto courseDto){
         System.out.println("|||||||||||||||||");

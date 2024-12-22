@@ -6,6 +6,8 @@ import com.elearn.app.dtos.CourseDto;
 import com.elearn.app.dtos.CustomMessage;
 import com.elearn.app.dtos.CustomPageResponse;
 import com.elearn.app.services.CategoryService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -15,8 +17,12 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+//@SecurityRequirement(
+//    name = "jwtScheme"
+//)
 @RestController
 @RequestMapping("/api/v1/categories")
+//@CrossOrigin(origins = "*")
 public class CategoryController {
 
     private CategoryService categoryService;
